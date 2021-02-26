@@ -35,24 +35,49 @@ firmlist <- arrange(firmlist, Code)
 matchdata <- merge(firmlist, data)
 matchdata <- unique(matchdata)
 matchdata <- arrange(matchdata, Firmnames, Year)
+matchdata3 <- data.frame()
+
+#s <- split(matchdata, matchdata$Code)
+#for(i in s){
+#        if(s$i$Year)
+#        }
+#}
+#
+matchdata2 <- rbind(c(rep(NA, 12)),subset(matchdata, Code==i))
+matchdata2 <- matchdata2[-length(matchdata2),]
+matchdata2 <- subset(matchdata2, select = c(-Code, -Firmnames, -Year))
+colnames(matchdata2) <- c(paste(colnames(matchdata2), "bf", sep = "_"))
+matchdata3 <- rbind(matchdata2, matchdata3)
+
+matchdata <- cbind(matchdata, matchdata3)
+matchdata <- matchdata[-(3:11)]
 write.csv(matchdata, file = "matchdata.csv")
+
+matchdata2 <- rbind(c(rep(NA, 12)),matchdata)
+matchdata2 <- matchdata2[-length(matchdata2),]
+matchdata2 <- subset(matchdata2, select = c(-Code, -Firmnames, -Year))
+colnames(matchdata2) <- c(paste(colnames(matchdata2), "bf", sep = "_"))
+matchdata <- cbind(matchdata, matchdata2)
+matchdata <- matchdata[-(3:11)]
+write.csv(matchdata, file = "matchdata.csv")
+
+matchdata[-1]
 
 library(readxl)
 Test2 <- read_excel("Test2.xlsx", sheet = "工作表2")
 
-firmlist <- rep(unique(Test2$Firmnames), 7)
-Code <- c(as.factor(firmlist))
-firmlist <- as.data.frame(firmlist)
-firmlist <- cbind(firmlist, Code)
-names(firmlist) <- c("Firmnames", "Code")
-firmlist <- arrange(firmlist, Code)
-
 Test2 <- read_excel("Test2.xlsx", col_types = c("skip",
                                                 "skip", "text", "numeric", "numeric",
                                                 "numeric", "text", "text", "text", "text",
-                                                "text", "text"), na = "NA")
+                                                "text", "numeric"), na = "NA")
 
 bdata <- unique(merge(firmlist, Test2))
 
 rdata <- merge(matchdata, bdata, by = c("Firmnames", "Year"))
+x <- 2:12
+for(i in x){
+        rdata[,i] <- as.numeric(rdata[,i])
+}
+rdata <- rdata[complete.cases(rdata),]
+#rdata <- cbind(rdata, Year_Pscore = rdata[,2]-1)
 write.csv(rdata, file = "rdata.csv")
